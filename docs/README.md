@@ -13,7 +13,7 @@
 ---
 
 <div style="text-align:center;">  
-    <img src="https://github.com/Freshsalt/Legacy-Plan/blob/main/docs/img/map.png" style="display:inline-block;">  
+    <img src="map.png" style="display:inline-block;">  
 </div>
 
 <font size=5><center>__赛事地图（二代）__</center></font>
@@ -31,7 +31,7 @@
 </font>
 
 <div style="text-align:center;">  
-    <img src="https://github.com/Freshsalt/Legacy-Plan/blob/main/docs/img/car2.png" style="display:inline-block;">  
+    <img src="car2.png" style="display:inline-block;">  
 </div>
 
 <font size=5><center>__车辆本体（二代）__</center></font>
@@ -75,7 +75,7 @@
 </font>
 
 <div style="text-align:center;">  
-    <img src="https://github.com/Freshsalt/Legacy-Plan/blob/main/docs/img/car.jpg" style="display:inline-block;">  
+    <img src="car.jpg" style="display:inline-block;">  
 </div>
 
 <font size=5><center>__作者与车辆本体（一代）__</center></font>
