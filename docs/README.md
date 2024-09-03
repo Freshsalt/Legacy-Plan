@@ -4,7 +4,7 @@
 
 ---
 
-<font size=5>&emsp;&emsp;本手册旨在对船电实验**室内城市道路识别赛车**的使用流程与方法进行说明。如有任何需求，可以在BiliBili私信或微信联系。</font>
+<font size=5>&emsp;&emsp;本手册旨在对船电实验室内**城市道路识别赛项机器人**的使用流程与方法进行说明。如有任何需求，可以在BiliBili私信或微信联系。</font>
 
 # 比赛规则简介
 
@@ -17,8 +17,6 @@
 </div>
 
 <font size=5><center>__赛事地图（二代）__</center></font>
-
-
 
 <font size=5>**1.参赛（机器人道具要求）**</font>
 
@@ -72,6 +70,7 @@
 &emsp;&emsp;前期部署章节有厂家具体说明。详见[深度学习车使用手册v1.pdf](https://qi9206pf15p.feishu.cn/wiki/N9BCwhBFeiI6pmkGGJ2cpsUWnOh?from=from_copylink)\
 &emsp;&emsp;在myself文件夹里有一些小工具，具体干嘛的试了就知道。\
 &emsp;&emsp;电机上的编码器没有任何用处。\
+&emsp;&emsp;链接机器上电脑的方式为NoMachine局域网远程连接，我将HDMI输出口关闭了，如果需要，自行打开。\
 </font>
 
 <div style="text-align:center;">  
