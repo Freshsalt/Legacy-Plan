@@ -34,28 +34,14 @@
     flag_left = 0
     flag_green = 0
     flag_attention = 0
-    cancel_flag = 0
-    flag_park = 0
-    right_buf = 0
-    left_buf = 0
-    limit_10_buf = 0
-    cancel_10_buf = 0
-    paper_red_buf = 0
-    paper_greend_buf = 0
-    attention_buf = 0
-    crossing_buf = 0
-    flag_roundabout = False
-    roundabout_start_time = None
-    flag_roundabout_2 = False
-    roundabout_start_time_2 = None
-    end_flag = False
+
 
     lib_path = "../lib/libart_driver.so"
     so = cdll.LoadLibrary
     lib = so(lib_path)
-    car_port = "/dev/ttyACM0"
+    car_port = "/dev/0"
 
-    if lib.art_racecar_init(38400, car_port.encode("utf-8")) < 0:
+    if lib.art_racecar_init(9600, car_port.encode("utf-8")) < 0:
         print("初始化赛车时出错。")
 
 
@@ -82,7 +68,7 @@
         lib.send_cmd(velocity, steering_angle)
 
 
-    default_velocity = 1555
+    default_velocity = 1545
     default_steering = 1500
     t = 0
     command_num = 0
@@ -92,8 +78,7 @@
 
     def follow_lane():
         global (default_velocity, default_steering, command_num, t, command_queue, command_lock,
-            flag_right, flag_left, flag_park, flag_roundabout, roundabout_start_time,
-            flag_roundabout_2, roundabout_start_time_2, end_flag)
+            flag_right, flag_left, )
 
         place = fluid.CPUPlace()
         exe = fluid.Executor(place)
@@ -115,26 +100,26 @@
             result = exe.run(program=infer_program, feed={feeded_var_names[0]: img}, fetch_list=target_vars)
             model_steering = int(result[0][0][0] + 0.5)
 
-            if flag_left == 0 and flag_right == 1:
+            if flag_left == 1 and flag_right == 1:
                 if model_steering > 1760:
-                    model_steering = int(model_steering * 1.03)
+                    model_steering = int(model_steering * 1.00)
                 if model_steering < 1400:
                     model_steering = int(model_steering * 0.96)
-            elif flag_left == 1 and flag_right == 0:
+            elif flag_left == 0 and flag_right == 0:
                 if model_steering > 1500:
-                    model_steering = int(model_steering * 1.08)
+                    model_steering = int(model_steering * 1.8)
                 if model_steering < 1400:
                     model_steering = int(model_steering * 0.97)
             elif flag_park == 1:
                 if model_steering > 1700:
-                    model_steering = int(model_steering * 1.17)
+                    model_steering = int(model_steering * 1.7)
                 if 1500 < model_steering <= 1700:
                     model_steering = int(model_steering * 1.01)
                 if model_steering < 1500:
-                    model_steering = int(model_steering * 0.98)
+                    model_steering = int(model_steering * 0.8)
             else:
                 if model_steering > 1650:
-                    model_steering = int(model_steering * 1.05)
+                    model_steering = int(model_steering * 1.5)
 
             model_steering = max(1100, min(model_steering, 1900))
 
@@ -144,7 +129,7 @@
 
             if flag_roundabout:
                 elapsed_time = (datetime.now() - roundabout_start_time).total_seconds()
-                if elapsed_time >= 6.7:
+                if elapsed_time >= 10:
                     if cmd_angle == 1900:
                         car_control(default_velocity, 1900)
                         time.sleep(1.2)
@@ -158,7 +143,7 @@
 
             if flag_roundabout_2:
                 elapsed_time_2 = (datetime.now() - roundabout_start_time_2).total_seconds()
-                if elapsed_time_2 >= 2.5:
+                if elapsed_time_2 >= 50:
                     default_velocity = 1500
                     end_flag = True
                     print("The END!!!")
@@ -173,17 +158,16 @@
 
     def recognize_signs():
         global (default_velocity, default_steering, command_queue, command_lock, flag_attention,
-            cancel_flag, right_buf, left_buf, limit_10_buf, cancel_10_buf, paper_red_buf,
-            paper_greend_buf, attention_buf, crossing_buf)
+            cancel_flag, right_buf, left_buf)
 
-        device = select_device('cpu')
-        half = device.type != 'cpu'
+        device = select_device('gpu')
+        half = device.type != 'gpu'
         weights = '../model/yolov5_model/best.pt'
         model = attempt_load(weights, map_location=device)
         names = model.module.names if hasattr(model, 'module') else model.names
 
         cap = cv2.VideoCapture(0)
-        cap.set(cv2.CAP_PROP_FPS, 18)
+        cap.set(cv2.CAP_PROP_FPS, 3)
 
         while True:
             ret, frame = cap.read()
@@ -214,7 +198,7 @@
                         height = int(xyxy[3]) - int(xyxy[1])
                         area = width * height
 
-                        if conf >= 0.82:
+                        if conf >= 0.50:
                             if label == 'cancel_10' and cancel_10_buf == 0:
                                 if area >= 800:
                                     default_velocity = 1550
@@ -262,8 +246,7 @@
 
     def handle_commands(command_velocity, command_steering):
         global (default_velocity, default_steering, command_num, t, flag, flag_red, flag_crossing,
-            flag_green, flag_right, flag_left, flag_park, flag_roundabout, roundabout_start_time,
-            flag_roundabout_2, roundabout_start_time_2)
+            flag_green, flag_right)
 
         if command_velocity == 1505:
             command_num = 1
@@ -271,28 +254,28 @@
         elif command_steering == 1900:
             command_num = 3
             print("left")
-        elif command_steering == 1100:
+        elif command_steering == 1101:
             command_num = 4
             print("right")
-        elif command_velocity == 1540:
+        elif command_velocity == 1543:
             command_num = 5
             print("slow")
-        elif command_velocity == 1551:
-            default_velocity = 1555
+        elif command_velocity == 1561:
+            default_velocity = 1545
             command_num = 6
             print('fast')
         elif command_velocity == 1506:
             command_num = 7
             print("red_light!")
-        elif command_velocity == 1552:
+        elif command_velocity == 1562:
             default_velocity = 1555
             command_num = 8
             print("green_light!go!")
-        elif command_velocity == 1553:
+        elif command_velocity == 1573:
             default_velocity = 1555
             command_num = 2
             print("Change Road!")
-        elif command_steering == 1899:
+        elif command_steering == 1879:
             command_num = 9
             print("attention!precipice!")
         elif command_velocity == 1509:
@@ -341,7 +324,7 @@
         elif command_num == 8:
             if flag_green == 0:
                 flag_green = 1
-                car_control(1550, 1100)
+                car_control(1545, 1100)
                 time.sleep(0.2)
                 command_num = 2
                 flag_park = 1
@@ -370,13 +353,13 @@
 
         if command_num == 2:
             command_num = 0
-            default_velocity = 1555
+            default_velocity = 1545
             default_steering = 1500
 
 
     if __name__ == "__main__":
         try:
-            serial_connection = serial.Serial(car_port, 38400)
+            serial_connection = serial.Serial(car_port, 9600)
         except Exception as e:
             print(f"串口错误: {e}")
             sys.exit(-1)
